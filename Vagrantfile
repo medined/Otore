@@ -8,6 +8,8 @@ Vagrant.configure("2") do |config|
   config.hostmanager.ignore_private_ip = false
   config.hostmanager.include_offline = true
 
+  config.ssh.forward_x11 = true
+
   config.vm.define :otore do |node|
     node.vm.box = "precise64"
     node.vm.provider :virtualbox do |v|
