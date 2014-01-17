@@ -21,7 +21,7 @@ Vagrant.configure("2") do |config|
     node.vm.provision "puppet" do |puppet|
       puppet.manifests_path = "puppet/manifests"
       puppet.module_path = "puppet/modules"
-      puppet.options = "--verbose --debug"
+      #puppet.options = "--verbose --debug"
       puppet.facter = {
         "vagrant" => "1",
       }

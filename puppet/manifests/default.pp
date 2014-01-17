@@ -63,12 +63,28 @@ file { '/etc/motd':
 	content => "Welcome to your Vagrant-built Puppet-managed virtual machine.\n",
 }
 
+$adt_version = "adt-bundle-linux-x86_64-20131030"
+$adt_url = "http://dl.google.com/android/adt/${adt_version}.zip"
+$adt_cache_file = "/vagrant/files/${adt_version}.zip"
+$adt_install_base_dir = "/usr/local"
+$adt_install_dir = "${adt_install_base_dir}/${adt_version}"
+
+exec { "get_android_apt" :
+	command => "wget --quiet --output-document=${adt_cache_file} ${adt_url}",
+	timeout => 1800,
+	creates => $adt_cache_file,
+} ->
 exec { "install_android_apt" :
-    command => "unzip -d /usr/local /vagrant/files/adt-bundle-linux-x86_64-20131030.zip",
-    require => Package['ia32-libs-gtk'],
-    require => Package['unzip'],
-} -> 
-file { "/usr/local/adt-bundle-linux-x86_64-20131030":
-    owner => "vagrant",
-    group => "supergroup",
+    command => "unzip -d ${adt_install_base_dir} ${$adt_cache_file}",
+    require => [ Package['ia32-libs-gtk'], Package['unzip'] ],
+} ->
+exec { "change_android_apt_ownership" :
+	command => "chown -R vagrant:supergroup $adt_install_dir",
+}
+
+file { 'setup_eclipse_on_path' :
+    path    => '/etc/profile.d/eclipse_setup.sh',
+    ensure  => present,
+    mode    => 0644,
+    content => "export PATH=${adt_install_dir}/eclipse:\$PATH",
 }
